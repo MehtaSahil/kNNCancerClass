@@ -26,7 +26,10 @@ struct dataframe {
 };
 
 /* init dataframe fields */
-int init_dataframe(struct dataframe *df);
+int init_dataframe(struct dataframe *df, char *filename);
+
+/* free all resources taken by the dataframe */
+int free_dataframe(struct dataframe *df);
 
 /* normalize all columns in dataframe */
 void normalize_all_cols(struct dataframe *df);
@@ -34,7 +37,7 @@ void normalize_all_cols(struct dataframe *df);
 /* normalize values in column to between 0 and 1 */
 void normalize_col(struct dataframe *df, int col);
 
-/* fill dataframe from input file 
+/* fill dataframe from input file
  * ntuples with missing data have been removed from data file
  * https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin */
 void fill_dataframe(struct dataframe *df, char *filename, char *delimiter);
