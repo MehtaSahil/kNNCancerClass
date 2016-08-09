@@ -40,7 +40,12 @@ void normalize_col(struct dataframe *df, int col);
 /* fill dataframe from input file
  * ntuples with missing data have been removed from data file
  * https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin */
-void fill_dataframe(struct dataframe *df, char *filename, char *delimiter);
+int fill_dataframe(struct dataframe *df, char *filename, char *delimiter);
+
+/* given a string, parse it by delimiter
+ * all items EXCEPT the last are stored in tofill
+ * the last item is stored in res */
+void fill_delimited(char *instr, double *tofill, double *res, char *delimiter);
 
 /* returns the number of lines in a file */
 int num_lines_in_file(char *filename);

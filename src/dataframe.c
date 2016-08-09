@@ -3,15 +3,40 @@
 #include <string.h>
 #include "dataframe.h"
 
-void print_delimited_words(char *instr, char *delimeter);
-
 int main(int argc, char *argv[])
 {
+	int rc;
+
 	struct dataframe df;
 	char *filename = strdup("breast-cancer-wisconsin-nomissing.data");
-	init_dataframe(&df, filename);
+	rc = init_dataframe(&df, filename);
+	if (rc)
+	{
+		printf("failed to init dataframe\n");
+		free(filename);
+		return 1;
+	}
 
-	fill_dataframe(&df, filename, " ");
+	rc = fill_dataframe(&df, filename, ",");
+	if (rc)
+	{
+		printf("failed to fill dataframe\n");
+		free(filename);
+		return 1;
+	}
+	
+
+	int i, j;
+	for (i = 0; i < df.numrows; i++)
+	{
+		printf("%d : ", i);
+		for (j = 0; j < df.numcols - 1; j++)
+		{
+			printf("%-5.1f ", df.entries[i].features[j]);
+		}
+		printf(" | %-5.1f", df.entries[i].result);
+		printf("\n");
+	}
 
 	free_dataframe(&df);
 	free(filename);
@@ -83,53 +108,56 @@ void normalize_all_cols(struct dataframe *df);
 
 void normalize_col(struct dataframe *df, int col);
 
-void fill_dataframe(struct dataframe *df, char *filename, char *delimiter)
+int fill_dataframe(struct dataframe *df, char *filename, char *delimiter)
 {
 	FILE *f = fopen(filename, "r");
+	char *buf;
+	int spot;
+
 	if (f == NULL)
 	{
 		printf("failed to open file : %s\n", filename);
-		return;
+		return 1;
 	}
 
-	char *buf = malloc(50 * sizeof(char));
-
-	int i;
-	for (i = 0; i < 5; i++)
+	buf = malloc(50 * sizeof(char));
+	spot = 0;
+	while (fgets(buf, 50, f))
 	{
-		fgets(buf, 50, f);
-		print_delimited_words(buf, ",");
+		fill_delimited(buf, df->entries[spot].features,
+				    &df->entries[spot].result, delimiter);
+		spot++;
 	}
 
 	if (fclose(f))
 	{
 		printf("failed to close file : %s\n", filename);
 		free(buf);
-		return;
+		return 1;
 	}
 
 	free(buf);
+	return 0;
 }
 
-void print_delimited_words(char *instr, char *delimiter)
+void fill_delimited(char *instr, double *tofill, double *res, char *delimiter)
 {
 	char *token, *string, *tofree;
 
-	/* avoid the ID entry in data */
+	/* avoid the ID entry in data (first) */
 	int tracker = 0;
+	int spot = 0;
 
 	tofree = string = strdup(instr);
 	while ((token = strsep(&string, delimiter)) != NULL)
 	{
 		if (token[1] == '\n')
-			printf("| %-5.1f", (double)(token[0] - '0'));
+			*res = (double)(token[0] - '0');
 		else if (tracker != 0)
-			printf("%-5.1f ", (double)atof(token));
+			tofill[spot++] = (double)atof(token);
 
 		tracker++;
 	}
-
-	printf("\n");
 
 	free(token);
 	free(string);
