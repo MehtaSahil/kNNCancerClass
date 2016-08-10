@@ -18,17 +18,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	rc = fill_dataframe(&df, filename, ",");
-	if (rc)
-	{
-		printf("failed to fill dataframe\n");
-		free(filename);
-		return 1;
-	}
-
-	print_n_df_rows(&df, df.numrows);
-	printf("\n");
-	normalize_all_features(&df);
 	print_n_df_rows(&df, df.numrows);
 
 	free_dataframe(&df);
@@ -67,6 +56,14 @@ int init_dataframe(struct dataframe *df, char *filename)
 
 		df->entries[i].result = 0;
 	}
+
+	if (fill_dataframe(df, filename, ","))
+	{
+		printf("failed to fill dataframe\n");
+		return 1;
+	}
+
+	normalize_all_features(df);
 
 	return 0;
 }
