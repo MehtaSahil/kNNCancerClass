@@ -4,27 +4,6 @@
 #include <float.h>
 #include "dataframe.h"
 
-/* int main(int argc, char *argv[])
-{
-	int rc;
-
-	struct dataframe df;
-	char *filename = strdup("data/breast-cancer-wisconsin-nomissing.data");
-	rc = init_dataframe(&df, filename);
-	if (rc)
-	{
-		printf("failed to init dataframe\n");
-		free(filename);
-		return 1;
-	}
-
-	print_n_df_rows(&df, df.numrows);
-
-	free_dataframe(&df);
-	free(filename);
-	return 0;
-} */
-
 int init_dataframe(struct dataframe *df, char *filename)
 {
 	int i;
