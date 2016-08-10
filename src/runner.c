@@ -6,15 +6,38 @@
 double distance(struct ntuple p1, struct ntuple p2, int nfeatures);
 struct ntuple *sorted_distances(struct ntuple p1, int nfeatures,
 				struct dataframe *df);
+double get_result(struct ntuple p1, struct dataframe *train, int k);
 
 int main(int argc, char *argv[])
 {
-	int i;
+	int i, k = 9;
+	int num_true = 0;
+	int num_false = 0;
+
 	struct dataframe train;
 	struct dataframe test;
 
 	init_dataframe(&train, "data/breast-cancer-wisconsin-train.data");
 	init_dataframe(&test, "data/breast-cancer-wisconsin-test.data");
+
+	for (i = 0; i < test.numrows; i++)
+	{
+		struct ntuple p1 = test.entries[i];
+		double res = get_result(p1, &train, k);
+		int correct = p1.result == res;
+		// printf("%.1f : %.1f : %d\n", p1.result, res, correct);
+
+		if (correct)
+			num_true++;
+		else
+			num_false++;
+	}
+
+	int total = num_true + num_false;
+	double p_right = ((double)num_true) / ((double)total) * 100;
+	double p_wrong = ((double)num_false) / ((double)total) * 100;
+	printf("right : %10f \%\n", p_right);
+	printf("wrong : %10f \%\n", p_wrong);
 
 	free_dataframe(&train);
 	free_dataframe(&test);
@@ -73,6 +96,7 @@ struct ntuple *sorted_distances(struct ntuple p1, int nfeatures,
 				distances[i] = distances[j];
 				distances[j] = tempdouble;
 
+				/* maintain ordering in ntuples array */
 				struct ntuple tempstruct = sorted_ntuples[i];
 				sorted_ntuples[i] = sorted_ntuples[j];
 				sorted_ntuples[j] = tempstruct;
@@ -82,4 +106,38 @@ struct ntuple *sorted_distances(struct ntuple p1, int nfeatures,
 
 	free(distances);
 	return sorted_ntuples;
+}
+
+double get_result(struct ntuple p1, struct dataframe *train, int k)
+{
+	/* TODO : make sure k isn't larger than len(sorted_distances)*/
+
+	int i;
+
+	/* variables to count occurrences of 2.0 and 4.0 as results */
+	int c2 = 0;
+	int c4 = 0;
+
+	struct ntuple *distances = sorted_distances(p1, train->numcols - 1,
+						    train);
+
+	for (i = 0; i < k; i++)
+	{
+		double res = distances[i].result;
+		if (res == 2)
+			c2++;
+		else if (res == 4)
+			c4++;
+		else
+			printf("error : unrecognized result\n");
+	}
+
+	free(distances);
+
+	if (c4 > c2)
+		return 4.0;
+	if (c2 > c4)
+		return 2.0;
+
+	return 0.0;
 }
