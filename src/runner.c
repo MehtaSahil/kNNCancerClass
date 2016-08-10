@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 	double p_right = ((double)num_true) / ((double)total) * 100;
 	double p_wrong = ((double)num_false) / ((double)total) * 100;
 	printf("%d\n", k);
-	printf("right : %10f \%\n", p_right);
-	printf("wrong : %10f \%\n", p_wrong);
+	printf("right : %f \%\n", p_right);
+	printf("wrong : %f \%\n", p_wrong);
 	printf("\n");
 
 	free_dataframe(&train);
