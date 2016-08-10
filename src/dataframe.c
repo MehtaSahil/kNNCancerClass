@@ -26,28 +26,10 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	int i, len = 6;
-	double *testarr;
-	testarr = malloc(len * sizeof(double));
-	testarr[0] = -1.2;
-	testarr[1] = 45.6;
-	testarr[2] = -1234;
-	testarr[3] = 1233.7;
-	testarr[4] = 671;
-	testarr[5] = 45.3;
-
-	for (i = 0; i < len; i++)
-		printf("%.1f\n", testarr[i]);
-	/* printf("mean : %.1f\n", double_arr_mean(testarr, len));
-	printf("median : %.1f\n", double_arr_median(testarr, len));
-	printf("min : %.1f\n", double_arr_min(testarr, len));
-	printf("max : %.1f\n", double_arr_max(testarr, len)); */
-
+	print_n_df_rows(&df, df.numrows);
 	printf("\n");
-	printf("normalizing\n");
-	normalize_double_arr(testarr, len);
-	for (i = 0; i < len; i++)
-		printf("%f\n", testarr[i]);
+	normalize_all_features(&df);
+	print_n_df_rows(&df, df.numrows);
 
 	free_dataframe(&df);
 	free(filename);
@@ -86,19 +68,6 @@ int init_dataframe(struct dataframe *df, char *filename)
 		df->entries[i].result = 0;
 	}
 
-	df->colmeans	= malloc(df->numcols * sizeof(double));
-	df->colmedians	= malloc(df->numcols * sizeof(double));
-	df->colmaxes	= malloc(df->numcols * sizeof(double));
-	df->colmins	= malloc(df->numcols * sizeof(double));
-
-	if (!df->colmeans || !df->colmedians
-	    || !df->colmaxes || !df->colmins)
-	{
-		printf("failed to init df statistical fields\n");
-		free_dataframe(df);
-		return 1;
-	}
-
 	return 0;
 }
 
@@ -108,14 +77,27 @@ int free_dataframe(struct dataframe *df)
 	for (i = 0; i < df->numrows; i++)
 		free(df->entries[i].features);
 	free(df->entries);
-
-	free(df->colmeans);
-	free(df->colmedians);
-	free(df->colmaxes);
-	free(df->colmins);
 }
 
-void normalize_all_features(struct dataframe *df);
+void normalize_all_features(struct dataframe *df)
+{
+	int r, c;
+
+	for (c = 0; c < df->numcols - 1; c++)
+	{
+		double *feature_col = df_col_to_arr(df, c);
+		normalize_double_arr(feature_col, df->numrows);
+
+		/* overwrite existing df values to reflect normalization */
+		for (r = 0; r < df->numrows; r++)
+		{
+			/* multiply by 1000 to avoid roundoff error */
+			df->entries[r].features[c] = feature_col[r] * 1000;
+		}
+
+		free(feature_col);
+	}
+}
 
 void normalize_double_arr(double *arr, int length)
 {
@@ -123,7 +105,7 @@ void normalize_double_arr(double *arr, int length)
 	double min = double_arr_min(arr, length);
 	double max = double_arr_max(arr, length);
 
-	/* normalize */
+	/* normalize IN PLACE */
 	for (i = 0; i < length; i++)
 		arr[i] = (arr[i] - min) / (max - min);
 }
@@ -338,9 +320,9 @@ int print_n_df_rows(struct dataframe *df, int nrows)
 		printf("%d : ", i);
 		for (j = 0; j < df->numcols - 1; j++)
 		{
-			printf("%-5.1f ", df->entries[i].features[j]);
+			printf("%-7.2f ", df->entries[i].features[j]);
 		}
-		printf(" | %-5.1f", df->entries[i].result);
+		printf(" | %-7.2f", df->entries[i].result);
 		printf("\n");
 	}
 

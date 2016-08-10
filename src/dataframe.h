@@ -16,13 +16,6 @@ struct dataframe {
 	int numcols;
 
 	struct ntuple *entries;
-
-	/* columnwise statistical measures
- 	 * calculated at init-time POST normalization */
-	double *colmeans;
-	double *colmedians;
-	double *colmaxes;
-	double *colmins;
 };
 
 /* init dataframe fields */
