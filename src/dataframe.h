@@ -50,4 +50,16 @@ void fill_delimited(char *instr, double *tofill, double *res, char *delimiter);
 /* returns the number of lines in a file */
 int num_lines_in_file(char *filename);
 
+/* returns all df items in col (zero-indexed) as an array of doubles */
+double *df_col_to_arr(struct dataframe *df, int col);
+
+/* STATS */
+double double_arr_mean(double *arr, int length);
+double double_arr_median(double *arr, int length);
+double double_arr_min(double *arr, int length);
+double double_arr_max(double *arr, int length);
+
+/* prints nrows ntuples in df to standard output */
+int print_n_df_rows(struct dataframe *df, int nrows);
+
 #endif /* DATAFRAME_H */
