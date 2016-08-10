@@ -10,7 +10,18 @@ double get_result(struct ntuple p1, struct dataframe *train, int k);
 
 int main(int argc, char *argv[])
 {
-	int i, k = 9;
+	int i, k;
+
+	if (argc != 2)
+	{
+		printf("setting k to default value of : %d\n", 500);
+		k = 500;
+	}
+	else
+	{
+		k = atoi(argv[1]);
+	}
+
 	int num_true = 0;
 	int num_false = 0;
 
@@ -24,6 +35,12 @@ int main(int argc, char *argv[])
 	{
 		struct ntuple p1 = test.entries[i];
 		double res = get_result(p1, &train, k);
+		if (&res == NULL)
+		{
+			printf("invalid k\n");
+			return 1;
+		}
+
 		int correct = p1.result == res;
 		// printf("%.1f : %.1f : %d\n", p1.result, res, correct);
 
@@ -36,8 +53,10 @@ int main(int argc, char *argv[])
 	int total = num_true + num_false;
 	double p_right = ((double)num_true) / ((double)total) * 100;
 	double p_wrong = ((double)num_false) / ((double)total) * 100;
+	printf("%d\n", k);
 	printf("right : %10f \%\n", p_right);
 	printf("wrong : %10f \%\n", p_wrong);
+	printf("\n");
 
 	free_dataframe(&train);
 	free_dataframe(&test);
@@ -110,7 +129,11 @@ struct ntuple *sorted_distances(struct ntuple p1, int nfeatures,
 
 double get_result(struct ntuple p1, struct dataframe *train, int k)
 {
-	/* TODO : make sure k isn't larger than len(sorted_distances)*/
+	if (k > train->numrows)
+	{
+		printf("cannot retrieve more samples than rows\n");
+		return;
+	}
 
 	int i;
 
