@@ -4,7 +4,7 @@
 #include <float.h>
 #include "dataframe.h"
 
-int main(int argc, char *argv[])
+/* int main(int argc, char *argv[])
 {
 	int rc;
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	free_dataframe(&df);
 	free(filename);
 	return 0;
-}
+} */
 
 int init_dataframe(struct dataframe *df, char *filename)
 {
@@ -243,7 +243,7 @@ double double_arr_median(double *arr, int length)
 	{
 		for (j = i; j < length; j++)
 		{
-			if (duparr[j]  < duparr[i])
+			if (duparr[j] < duparr[i])
 			{
 				double temp = duparr[i];
 				duparr[i] = duparr[j];
