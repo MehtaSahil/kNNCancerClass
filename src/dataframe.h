@@ -31,11 +31,11 @@ int init_dataframe(struct dataframe *df, char *filename);
 /* free all resources taken by the dataframe */
 int free_dataframe(struct dataframe *df);
 
-/* normalize all columns in dataframe */
-void normalize_all_cols(struct dataframe *df);
+/* columnwise normalization of all features in dataframe entries */
+void normalize_all_features(struct dataframe *df);
 
-/* normalize values in column to between 0 and 1 */
-void normalize_col(struct dataframe *df, int col);
+/* normalizes values IN PLACE between 0 and 1 */
+void normalize_double_arr(double *arr, int length);
 
 /* fill dataframe from input file
  * ntuples with missing data have been removed from data file

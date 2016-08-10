@@ -26,21 +26,28 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	int i;
+	int i, len = 6;
 	double *testarr;
-	testarr = malloc(5 * sizeof(double));
+	testarr = malloc(len * sizeof(double));
 	testarr[0] = -1.2;
 	testarr[1] = 45.6;
 	testarr[2] = -1234;
 	testarr[3] = 1233.7;
 	testarr[4] = 671;
+	testarr[5] = 45.3;
 
-	for (i = 0; i < 5; i++)
+	for (i = 0; i < len; i++)
 		printf("%.1f\n", testarr[i]);
-	printf("mean : %.1f\n", double_arr_mean(testarr, 5));
-	printf("median : %.1f\n", double_arr_median(testarr, 5));
-	printf("min : %.1f\n", double_arr_min(testarr, 5));
-	printf("max : %.1f\n", double_arr_max(testarr, 5));
+	/* printf("mean : %.1f\n", double_arr_mean(testarr, len));
+	printf("median : %.1f\n", double_arr_median(testarr, len));
+	printf("min : %.1f\n", double_arr_min(testarr, len));
+	printf("max : %.1f\n", double_arr_max(testarr, len)); */
+
+	printf("\n");
+	printf("normalizing\n");
+	normalize_double_arr(testarr, len);
+	for (i = 0; i < len; i++)
+		printf("%f\n", testarr[i]);
 
 	free_dataframe(&df);
 	free(filename);
@@ -108,9 +115,18 @@ int free_dataframe(struct dataframe *df)
 	free(df->colmins);
 }
 
-void normalize_all_cols(struct dataframe *df);
+void normalize_all_features(struct dataframe *df);
 
-void normalize_col(struct dataframe *df, int col);
+void normalize_double_arr(double *arr, int length)
+{
+	int i;
+	double min = double_arr_min(arr, length);
+	double max = double_arr_max(arr, length);
+
+	/* normalize */
+	for (i = 0; i < length; i++)
+		arr[i] = (arr[i] - min) / (max - min);
+}
 
 int fill_dataframe(struct dataframe *df, char *filename, char *delimiter)
 {
@@ -229,18 +245,30 @@ double double_arr_mean(double *arr, int length)
 double double_arr_median(double *arr, int length)
 {
 	double median;
+	double *duparr;
+	int i, j;
+
+	duparr = malloc(length * sizeof(double));
+	if (!duparr)
+	{
+		printf("failed to malloc duparr\n");
+		return;
+	}
+
+	/* copy data to avoid manipulating original */
+	for (i = 0; i < length; i++)
+		duparr[i] = arr[i];
 
 	/* selection sort O(n^2) */
-	int i, j;
 	for (i = 0; i < length; i++)
 	{
 		for (j = i; j < length; j++)
 		{
-			if (arr[j]  < arr[i])
+			if (duparr[j]  < duparr[i])
 			{
-				double temp = arr[i];
-				arr[i] = arr[j];
-				arr[j] = temp;
+				double temp = duparr[i];
+				duparr[i] = duparr[j];
+				duparr[j] = temp;
 			}
 		}
 	}
@@ -249,19 +277,20 @@ double double_arr_median(double *arr, int length)
 
 	if (length % 2 == 0)
 	{
-		double num1 = arr[median_index];
-		double num2 = arr[median_index + 1];
+		double num1 = duparr[median_index];
+		double num2 = duparr[median_index + 1];
 		double sum = num1 + num2;
 		median = sum / 2;
 	}
 	else
 	{
-		median = arr[median_index];
+		median = duparr[median_index];
 	}
 
+	free(duparr);
 	return median;
 }
-	
+
 double double_arr_min(double *arr, int length)
 {
 	int i;
