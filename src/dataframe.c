@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <errno.h>
 #include "dataframe.h"
 
 int init_dataframe(struct dataframe *df, char *filename)
@@ -88,6 +89,15 @@ void normalize_all_features(struct dataframe *df)
 
 void normalize_double_arr(double *arr, int length)
 {
+	if (length == 1)
+	{
+		arr[0] = 1.0;
+		return;
+	}
+
+	if (length <= 0)
+		return;
+
 	int i;
 	double min = double_arr_min(arr, length);
 	double max = double_arr_max(arr, length);
@@ -182,7 +192,7 @@ double *df_col_to_arr(struct dataframe *df, int col)
 	if (col >= df->numcols - 1)
 	{
 		printf("there is no col <%d> in df\n", col);
-		return;
+		return NULL;
 	}
 
 	double *to_return;
@@ -190,7 +200,7 @@ double *df_col_to_arr(struct dataframe *df, int col)
 	if (!to_return)
 	{
 		printf("failed to malloc to_return in df_col_to_arr\n");
-		return;
+		return NULL;
 	}
 
 	/* fill to_return */
@@ -203,6 +213,12 @@ double *df_col_to_arr(struct dataframe *df, int col)
 
 double double_arr_mean(double *arr, int length)
 {
+	if (length <= 0)
+	{
+		printf("cannot find mean of array with zero elements\n");
+		return (double)-EINVAL;
+	}
+
 	int i;
 	double sum = 0;
 	for (i = 0; i < length; i++)
@@ -213,6 +229,12 @@ double double_arr_mean(double *arr, int length)
 
 double double_arr_median(double *arr, int length)
 {
+	if (length <= 0)
+	{
+		printf("cannot find median of array with zero elements\n");
+		return (double)-EINVAL;
+	}
+
 	double median;
 	double *duparr;
 	int i, j;
@@ -262,6 +284,12 @@ double double_arr_median(double *arr, int length)
 
 double double_arr_min(double *arr, int length)
 {
+	if (length <= 0)
+	{
+		printf("cannot find min of array with zero elements\n");
+		return (double)-EINVAL;
+	}
+
 	int i;
 	double min = DBL_MAX;
 	for (i = 0; i < length; i++)
@@ -275,6 +303,12 @@ double double_arr_min(double *arr, int length)
 
 double double_arr_max(double *arr, int length)
 {
+	if (length <= 0)
+	{
+		printf("cannot find max of array with zero elements\n");
+		return (double)-EINVAL;
+	}
+
 	int i;
 	double max = -DBL_MAX;
 	for (i = 0; i < length; i++)
@@ -291,14 +325,14 @@ int print_n_df_rows(struct dataframe *df, int nrows)
 	if (!df)
 	{
 		printf("cannot print rows from null dataframe\n");
-		return 1;
+		return -EINVAL;
 	}
 
 	if (nrows > df->numrows)
 	{
 		printf("cannot print %d rows from dataframe with %d rows\n",
 							nrows, df->numrows);
-		return 1;
+		return -EINVAL;
 	}
 
 	int i, j;
