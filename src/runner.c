@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
 	struct dataframe train;
 	struct dataframe test;
 
-	init_dataframe(&train, "data/breast-cancer-wisconsin-train.data");
-	init_dataframe(&test, "data/breast-cancer-wisconsin-test.data");
+	init_dataframe(&train, "../data/breast-cancer-wisconsin-train.data");
+	init_dataframe(&test, "../data/breast-cancer-wisconsin-test.data");
 
 	for (i = 0; i < test.numrows; i++)
 	{
