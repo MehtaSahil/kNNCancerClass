@@ -16,7 +16,6 @@ int init_dataframe(struct dataframe *df, char *filename)
 	if (!df->numrows)
 	{
 		printf("failed to init df->numcols\n");
-		free_dataframe(df);
 		return 1;
 	}
 
@@ -29,6 +28,9 @@ int init_dataframe(struct dataframe *df, char *filename)
 		if (!df->entries[i].features)
 		{
 			printf("failed to init df->entries[%d].features\n", i);
+
+			/* stopping condition for free_dataframe */
+			df->entries[i].features = NULL;
 			free_dataframe(df);
 			return 1;
 		}
@@ -49,10 +51,22 @@ int init_dataframe(struct dataframe *df, char *filename)
 
 int free_dataframe(struct dataframe *df)
 {
+	printf("freeing resources\n");
+
+	if (df->entries == NULL)
+		return 0;
+
 	int i;
 	for (i = 0; i < df->numrows; i++)
+	{
+		/* free all features allocated before malloc failure */
+		if (df->entries[i].features == NULL)
+			break;
 		free(df->entries[i].features);
+	}
 	free(df->entries);
+
+	return 0;
 }
 
 void normalize_all_features(struct dataframe *df)

@@ -10,12 +10,12 @@ double get_result(struct ntuple p1, struct dataframe *train, int k);
 
 int main(int argc, char *argv[])
 {
-	int i, k;
+	int i, k, rc;
 
 	if (argc != 2)
 	{
-		printf("setting k to default value of : %d\n", 500);
-		k = 500;
+		printf("setting k to default value of : %d\n", 50);
+		k = 50;
 	}
 	else
 	{
@@ -28,8 +28,20 @@ int main(int argc, char *argv[])
 	struct dataframe train;
 	struct dataframe test;
 
-	init_dataframe(&train, "../data/breast-cancer-wisconsin-train.data");
-	init_dataframe(&test, "../data/breast-cancer-wisconsin-test.data");
+	rc =
+	   init_dataframe(&train, "../data/breast-cancer-wisconsin-train.data");
+	if (rc)
+	{
+		printf("init_dataframe for train data failed\n");
+		return 1;
+	}
+
+	rc = init_dataframe(&test, "../data/breast-cancer-wisconsin-test.data");
+	if (rc)
+	{
+		printf("init_dataframe for test failed\n");
+		return 1;
+	}
 
 	for (i = 0; i < test.numrows; i++)
 	{
