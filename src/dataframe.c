@@ -14,10 +14,7 @@ int init_dataframe(struct dataframe *df, char *filename)
 	df->numrows = num_lines_in_file(filename);
 
 	if (!df->numrows)
-	{
-		printf("failed to init df->numcols\n");
 		return 1;
-	}
 
 	df->entries = malloc(df->numrows * sizeof(struct ntuple));
 	for (i = 0; i < df->numrows; i++)
